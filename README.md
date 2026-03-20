@@ -1,68 +1,91 @@
-# PWSIS — Predictive Women Safety Intelligence System
+# GestureIQ — Real-Time AI Gesture Intelligence Platform
 
-PWSIS is a full-stack, AI-powered safety platform designed to proactively protect women in campuses and public spaces. By shifting from reactive reporting to predictive risk analysis, PWSIS empowers users with real-time intelligence and proactive prevention.
+**GestureIQ** is a cutting-edge, full-stack AI platform that utilizes hand gesture recognition and **Deterministic Finite Automata (DFA)** to create a secure, intentional, and high-precision Human-Machine Interface (HMI). 
 
-## 🚀 Key Missions
-1. **Risk Assessment & Prediction**: Dynamic risk scores and safety heatmaps based on time, lighting, crowd density, and historical data.
-2. **Route Intelligence**: AI-recommended safest routes that avoid elevated-risk zones.
-3. **Incident Reporting & Community Intelligence**: Anonymous crowd-sourced reporting with real-time aggregation.
-4. **Real-Time Alerts**: Notifications for high-risk zones and sudden environmental changes.
-5. **Voice Assistant Integration**: Hands-free operation and emergency triggering via voice commands.
-6. **Intelligent Inactivity & Distress Detection**: Monitoring for unusual patterns with automated escalation to trusted contacts.
-7. **Emergency Response Tools**: Instant SOS, Live Location Streaming, and Silent Mode SOS.
+Instead of reacting to single accidental gestures, GestureIQ validates **gesture sequences** to ensure user intent before triggering critical system actions.
+
+---
+
+## 🧠 The Core Engine: DFA Validation
+
+The breakthrough of GestureIQ is its internal **DFA (Deterministic Finite Automaton)** engine. Traditional gesture detection is often prone to false positives. By requiring a specific sequence of movements, the system achieves:
+
+- **Zero False Triggers**: Accidental gestures cannot activate system protocols.
+- **Intent-Driven Interaction**: Only deliberate, ordered sequences reach the `ACCEPT` state.
+- **Robustness**: A reliable interface for high-stakes environments like Medical and Industrial zones.
+
+> [!TIP]
+> **View Details**: Read the full logic breakdown in [Role of DFA in GestureIQ](role%20of%20DFA/Role_of_DFA_in_GestureIQ.md).
+
+---
+
+## 📦 Project Modules
+
+GestureIQ includes three specialized domain modules, each with its own unique DFA configuration:
+
+### 1. 🎓 Education Module
+An interactive science quiz where students use gestures to progress.
+- **Sequence**: `Point` to select → `Wait` for feedback → `ThumbsUp/Down` to answer.
+- **DFA Logic**: Prevents accidental answers by requiring a multi-step confirmation.
+
+### 2. 🏥 Medical Training
+A precision anatomy identification tool for medical trainees.
+- **Sequence**: `Point` at organ → `Wait 2s` → `OK Sign` to confirm inspection.
+- **DFA Logic**: Mimics surgical protocols where every action must be verified.
+
+### 3. 💼 Professional Controller
+A touchless presentation system for high-stakes corporate environments.
+- **Logic**: Maps single-gesture transitions (`Open Palm` = Next, `Fist` = Prev) for fast, reliable interaction without the need for physical controllers.
+
+---
 
 ## 🛠️ Technology Stack
-- **Frontend**: React (Vite), Tailwind CSS, Framer Motion, Leaflet.js, Lucide Icons.
-- **Backend**: Node.js, Express, MongoDB, Mongoose.
-- **Intelligence**: Risk Scoring Algorithm, NLP Incident Tagging, Anonymization Middleware.
 
-## 📦 Setup Instructions
+- **Frontend**: React (Vite), Tailwind CSS, Framer Motion, Lucide Icons.
+- **Backend**: Node.js, Express, Socket.io (Real-time).
+- **Vision**: MediaPipe (21 hand landmark extraction), Sub-millisecond precision.
+- **Intelligence**: Custom DFA State Engine (JSON-Configurable).
+
+---
+
+## 🚀 Live Protocol Setup
 
 ### Prerequisites
 - Node.js (v18+)
-- MongoDB (Running locally or MongoDB Atlas URI)
+- Web Browser with Camera access
 
-### Backend Setup
-1. Navigate to the `server` directory:
-   ```bash
-   cd server
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure environment variables in `.env`:
-   ```env
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/pwsis
-   JWT_SECRET=your_secret_key
-   ```
-4. Start the server (Dev Mode):
-   ```bash
-   npm run dev
-   ```
+### 1. Backend Launch
+```bash
+cd server
+npm install
+npm run dev
+```
 
-### Frontend Setup
-1. Navigate to the `client` directory:
-   ```bash
-   cd client
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-4. Access the application at `http://localhost:5173`.
+### 2. Client Launch
+```bash
+cd client
+npm install
+npm run dev
+```
+Open **http://localhost:5173** to access the system.
 
-## 🔒 Privacy & Principles
-- **Privacy First**: All reports are anonymous. Location data is shared only with explicit consent or in emergencies.
-- **No False Alarms**: Carefully calibrated risk scores to avoid unnecessary fear.
-- **Inclusivity**: Accessible design for all tech literacy levels.
-- **Transparency**: Clear explanation for flagged high-risk zones.
+---
 
-## 📜 License
-Built for PWSIS Safety Initiative. &copy; 2026.
+## 📡 WebSocket Architecture
+The system uses high-speed WebSockets for a seamless loop:
+1. **Frontend** captures 21 hand landmarks.
+2. **Gesture Event** is sent to the server.
+3. **DFA Engine** processes the state transition.
+4. **DFA Update** is pushed back to the client UI (Real-time graph & feedback).
 
+---
+
+## 📜 Repository Structure
+- `/client`: React application with real-time UI components and DFA Viz.
+- `/server`: Node.js backend with the DFA state machine and configurations.
+- `/role of DFA`: Comprehensive documentation on Automata theory applications in this project.
+- `Dockerfile`: Containerization setup for deployment.
+
+---
+
+**Built with Precision for the GestureIQ Safety Initiative. &copy; 2026.**
