@@ -1,240 +1,190 @@
-import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
-import { Shield, AlertTriangle, MapPin, Eye, Clock, Activity, Zap, TrendingUp, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
-
-// Map Control Component
-const SetViewOnMount = ({ coords }) => {
-    const map = useMap();
-    useEffect(() => {
-        if (coords) map.setView(coords, 15);
-    }, [coords, map]);
-    return null;
-};
-
-const StatCard = ({ icon: Icon, label, value, color, trend }) => (
-    <div className="glass-morphism p-6 rounded-3xl border border-white/5 flex flex-col justify-between h-full bg-navy-light/40 relative overflow-hidden group">
-        <div className={`absolute top-0 left-0 w-1 h-full scale-y-0 group-hover:scale-y-100 transition-transform duration-500 rounded-full`} style={{ backgroundColor: color }}></div>
-        <div className="flex justify-between items-start mb-4">
-            <div className={`p-3 rounded-2xl bg-${color}/10`} style={{ backgroundColor: `${color}15` }}>
-                <Icon className="w-6 h-6" style={{ color }} />
-            </div>
-            {trend && (
-                <div className="text-xs font-bold text-teal-accent flex items-center gap-1 bg-teal-accent/10 px-2 py-1 rounded-full">
-                    <TrendingUp className="w-3 h-3" /> {trend}
-                </div>
-            )}
-        </div>
-        <div>
-            <div className="text-3xl font-black text-white mb-1">{value}</div>
-            <div className="text-xs font-bold text-white/40 uppercase tracking-widest">{label}</div>
-        </div>
-    </div>
-);
+import { Link } from 'react-router-dom';
+import { Brain, Microscope, Briefcase, Camera as CameraIcon, Info, HelpCircle, Activity, Play, Zap, Shield, Database, LayoutPanelTop, BarChart3, Settings } from 'lucide-react';
+import Camera from '../components/Camera';
+import DFAVisualizer from '../components/DFAVisualizer';
+import GestureChips from '../components/GestureChips';
+import Walkthrough from '../components/Walkthrough';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 const Dashboard = () => {
-    const [reports, setReports] = useState([]);
-    const [stats, setStats] = useState({
-        totalIncidents: 124,
-        incidentsToday: 8,
-        safeRoutesGenerated: 452,
-        activeAlerts: 3
-    });
-    const [center, setCenter] = useState([18.5204, 73.8567]); // Default: Pune, India or substitute
-    const [loading, setLoading] = useState(true);
+  const [selectedModule, setSelectedModule] = useState('education');
+  const { dfaState, config, history, sendGesture, resetDfa } = useWebSocket(selectedModule);
+  const [demoMode, setDemoMode] = useState(false);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
 
-    useEffect(() => {
-        // Current location
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => setCenter([pos.coords.latitude, pos.coords.longitude]),
-                (err) => console.log('Geolocation error:', err)
-            );
-        }
+  useEffect(() => {
+    if (demoMode) {
+      const demoSequence = ['pointing', 'thumbsUp'];
+      let i = 0;
+      const interval = setInterval(() => {
+        sendGesture(demoSequence[i % demoSequence.length]);
+        i++;
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [demoMode, sendGesture]);
 
-        fetchData();
-    }, []);
+  return (
+    <div className="max-w-7xl mx-auto px-6 space-y-12 pb-24 relative overflow-hidden">
+      {/* Dynamic Glow Background */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-400/5 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-    const fetchData = async () => {
-        try {
-            const reportRes = await axios.get('/api/heatmap');
-            setReports(reportRes.data);
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 pt-8 relative z-10">
+        <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+        >
+          <div className="flex items-center gap-3 text-cyan-400 text-[10px] font-black uppercase tracking-[0.4em] mb-4">
+             <Shield className="w-4 h-4 shadow-[0_0_10px_#00F5FF]" /> Secure Interface Active
+          </div>
+          <h1 className="text-6xl font-black uppercase italic tracking-tighter text-white">
+            System <span className="text-gradient">Dashboard</span>
+          </h1>
+          <p className="text-white/40 font-medium uppercase tracking-[0.2em] text-[10px] mt-2 italic">
+            Monitoring active DFA state transitions in real-time
+          </p>
+        </motion.div>
 
-            const statRes = await axios.get('/api/dashboard/stats');
-            setStats(statRes.data);
-            setLoading(false);
-        } catch (err) {
-            console.error('Error fetching data:', err);
-            // Fallback with mock data for demo
-            setReports([
-                { lat: 18.5204, lng: 73.8567, intensity: 3, type: 'harassment' },
-                { lat: 18.5210, lng: 73.8580, intensity: 5, type: 'unsafe_lighting' },
-                { lat: 18.5190, lng: 73.8550, intensity: 2, type: 'stalking' }
-            ]);
-            setLoading(false);
-        }
-    };
+        <div className="flex gap-4 p-2 glass-morphism rounded-3xl border border-white/5 shadow-2xl">
+          <button 
+             onClick={() => setDemoMode(!demoMode)}
+             className={`flex items-center gap-3 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${demoMode ? 'bg-cyan-400 text-navy-deep shadow-[0_0_20px_#00F5FF]' : 'text-cyan-400 hover:bg-white/5'}`}
+          >
+            <Play className={`w-4 h-4 ${demoMode ? 'fill-navy-deep' : ''}`} /> {demoMode ? 'Demo Active' : 'Start Simulation'}
+          </button>
+          <button 
+             onClick={resetDfa}
+             className="flex items-center gap-3 px-8 py-3 glass-morphism rounded-2xl font-black text-xs uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+          >
+            <Database className="w-4 h-4" /> Reset Brain
+          </button>
+          <button 
+             onClick={() => setShowWalkthrough(true)}
+             className="flex items-center gap-3 px-8 py-3 glass-morphism rounded-2xl font-black text-xs uppercase tracking-widest text-white/60 hover:text-cyan-400 transition-colors border border-white/5"
+          >
+            <Info className="w-4 h-4" /> Mechanism FAQ
+          </button>
+        </div>
+      </div>
 
-    return (
-        <div className="max-w-7xl mx-auto px-6 space-y-8">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-4">
-                <div>
-                    <h1 className="text-5xl font-black tracking-tight mb-3">Live Safety <span className="text-teal-accent italic">Heatmap</span></h1>
-                    <p className="text-white/40 flex items-center gap-2 font-medium">
-                        <Activity className="w-4 h-4 text-teal-accent" /> Showing real-time predictive risk data for your current area.
-                    </p>
-                </div>
-                <button className="flex items-center gap-3 px-6 py-4 glass-morphism rounded-2xl font-bold border border-teal-accent/20 text-teal-accent hover:bg-teal-accent/10 transition-colors">
-                    <Zap className="w-5 h-5 fill-teal-accent" /> Generate Safe Route
-                </button>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
+        <div className="lg:col-span-12 space-y-10">
+            {/* Module Selector */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { id: 'education', icon: Brain, label: 'Education Module', desc: 'Science quiz automation' },
+                    { id: 'medical', icon: Microscope, label: 'Medical Training', desc: 'Anatomy identification' },
+                    { id: 'professional', icon: Briefcase, label: 'Professional Dev', desc: 'Presentation controller' }
+                ].map((m) => (
+                    <button
+                        key={m.id}
+                        onClick={() => setSelectedModule(m.id)}
+                        className={`p-8 rounded-[2rem] border-2 transition-all duration-500 text-left relative overflow-hidden group ${selectedModule === m.id ? 'bg-cyan-400/10 border-cyan-400/40' : 'bg-navy-light/40 border-white/5 hover:border-white/10'}`}
+                    >
+                        <div className="flex justify-between items-start mb-6">
+                             <div className={`p-4 rounded-2xl ${selectedModule === m.id ? 'bg-cyan-400 text-navy-deep shadow-[0_0_15px_#00F5FF]' : 'bg-white/5 text-white/40'} group-hover:scale-110 transition-transform`}>
+                                <m.icon className="w-6 h-6" />
+                             </div>
+                             {selectedModule === m.id && (
+                                <div className="px-3 py-1 bg-cyan-400/20 text-cyan-400 rounded-full text-[8px] font-black uppercase tracking-widest">Active</div>
+                             )}
+                        </div>
+                        <h3 className={`text-xl font-black italic uppercase tracking-tighter mb-2 ${selectedModule === m.id ? 'text-white' : 'text-white/60'}`}>{m.label}</h3>
+                        <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed">{m.desc}</p>
+                        {selectedModule === m.id && (
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                        )}
+                    </button>
+                ))}
             </div>
+        </div>
 
-            {/* Grid: Stats & Map */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Stats Column */}
-                <div className="lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-                    <StatCard
-                        icon={AlertTriangle}
-                        label="Incidents Today"
-                        value={stats.incidentsToday}
-                        color="#FF453A"
-                        trend="+12%"
-                    />
-                    <StatCard
-                        icon={Shield}
-                        label="Total Protected"
-                        value={stats.totalIncidents}
-                        color="#00FFD1"
-                    />
-                    <StatCard
-                        icon={Zap}
-                        label="Safe Routes"
-                        value={stats.safeRoutesGenerated}
-                        color="#00B4D8"
-                    />
-                    <StatCard
-                        icon={Eye}
-                        label="Active Alerts"
-                        value={stats.activeAlerts}
-                        color="#FFD60A"
-                    />
-                </div>
+        {/* Camera Feed */}
+        <div className="lg:col-span-7 flex flex-col gap-10">
+            <Camera moduleName={selectedModule} onGestureUpdate={sendGesture} />
+            <GestureChips history={history} />
+        </div>
 
-                {/* Map Container */}
-                <div className="lg:col-span-3 h-[600px] rounded-[3rem] overflow-hidden relative border border-white/5 glass-morphism">
-                    {loading && (
-                        <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-navy-deep/80 backdrop-blur-md">
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="w-16 h-16 border-4 border-teal-accent border-t-transparent rounded-full animate-spin"></div>
-                                <div className="font-black text-teal-accent tracking-widest uppercase text-sm animate-pulse">Syncing Intel...</div>
-                            </div>
-                        </div>
-                    )}
-
-                    <MapContainer center={center} zoom={15} scrollWheelZoom={false} className="h-full w-full">
-                        <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <SetViewOnMount coords={center} />
-
-                        {reports.map((report, idx) => (
-                            <Circle
-                                key={idx}
-                                center={[report.lat, report.lng]}
-                                radius={100}
-                                pathOptions={{
-                                    fillColor: report.intensity > 3 ? '#FF453A' : '#FF9F0A',
-                                    color: report.intensity > 3 ? '#FF453A' : '#FF9F0A',
-                                    weight: 1,
-                                    fillOpacity: 0.4
-                                }}
-                            >
-                                <Popup className="custom-popup">
-                                    <div className="p-3">
-                                        <div className="text-red-500 font-bold uppercase text-[10px] tracking-widest mb-1">High Risk Zone</div>
-                                        <div className="capitalize text-slate-800 font-bold mb-2">{report.type.replace('_', ' ')}</div>
-                                        <div className="text-slate-600 text-xs">Based on {report.intensity} recent reports.</div>
-                                    </div>
-                                </Popup>
-                            </Circle>
-                        ))}
-                    </MapContainer>
-
-                    {/* Overlay UI on Map */}
-                    <div className="absolute bottom-6 left-6 z-[1000] glass-morphism px-6 py-4 rounded-2xl border border-white/5 flex gap-8 items-center pointer-events-none md:pointer-events-auto">
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                            <span className="text-xs font-bold text-white/60">High Risk</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                            <span className="text-xs font-bold text-white/60">Moderate</span>
-                        </div>
-                        <div className="border-l border-white/10 pl-8 flex items-center gap-2">
-                            <Info className="w-4 h-4 text-teal-accent" />
-                            <span className="text-xs font-bold text-white/60 capitalize">Pune Safety Sector-4</span>
-                        </div>
-                    </div>
-                </div>
+        {/* DFA Visualiser */}
+        <div className="lg:col-span-5 flex flex-col gap-10">
+            <div className="h-full">
+              <DFAVisualizer config={config} activeState={dfaState?.newState || config?.startState} lastGesture={dfaState?.lastGesture} />
             </div>
-
-            {/* Real-time Feed */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-12">
-                <div className="glass-morphism p-8 rounded-[3rem] border border-white/5">
-                    <h3 className="text-2xl font-black mb-6 flex items-center gap-3">
-                        <Clock className="w-6 h-6 text-teal-accent" /> Recent Activity
-                    </h3>
-                    <div className="space-y-6">
-                        {[1, 2, 3].map((_, i) => (
-                            <div key={i} className="flex gap-6 items-start p-4 hover:bg-white/5 rounded-2xl transition-colors cursor-default group">
-                                <div className="p-3 bg-red-500/10 rounded-xl group-hover:scale-110 transition-transform">
-                                    <AlertTriangle className="w-5 h-5 text-red-500" />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="font-bold text-lg">Unsafe Lighting Reported</span>
-                                        <span className="text-[10px] font-black text-white/20 uppercase">24 mins ago</span>
-                                    </div>
-                                    <p className="text-white/40 text-sm">Near University North Gate. Suggest alternate route via Main Library path.</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+            
+            {/* Sequence Progress */}
+            <div className="glass-morphism p-8 rounded-[2rem] border border-white/5 space-y-6 bg-navy-light/20 relative group">
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Zap className="w-24 h-24 text-cyan-400" />
                 </div>
-
-                <div className="glass-morphism p-8 rounded-[3rem] border border-white/5 bg-navy-light/40 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8">
-                        <Shield className="w-32 h-32 text-teal-accent/5 -mr-12 -mt-12 animate-pulse-slow" />
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <Activity className="w-5 h-5 text-cyan-400" />
+                        <span className="text-sm font-black uppercase tracking-widest">Protocol Progress</span>
                     </div>
-                    <h3 className="text-2xl font-black mb-6 flex items-center gap-3">
-                        <Activity className="w-6 h-6 text-teal-accent" /> Risk Forecast
-                    </h3>
-                    <p className="text-white/60 mb-8 leading-relaxed max-w-sm">
-                        Our AI predicts a <span className="text-teal-accent font-bold">14% increase</span> in risk levels for Central Campus after 9:00 PM tonight based on historical pattern drift.
-                    </p>
-                    <div className="space-y-4">
-                        <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-white/40">
-                            <span>Sector Stability</span>
-                            <span>87%</span>
-                        </div>
-                        <div className="w-full h-2 bg-navy-deep rounded-full overflow-hidden">
-                            <div className="h-full bg-teal-accent w-[87%] shadow-[0_0_10px_#00FFD1]"></div>
-                        </div>
-                        <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-white/40 mt-6">
-                            <span>Predictive Confidence</span>
-                            <span>94%</span>
-                        </div>
-                        <div className="w-full h-2 bg-navy-deep rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-500 w-[94%] shadow-[0_0_10px_#3B82F6]"></div>
-                        </div>
-                    </div>
+                    <span className="text-sm font-black text-cyan-400 italic">{(dfaState?.progress * 100 || 0).toFixed(0)}%</span>
+                </div>
+                <div className="w-full h-3 bg-navy-deep rounded-full overflow-hidden p-0.5 border border-white/5">
+                    <motion.div
+                       initial={{ width: 0 }}
+                       animate={{ width: `${(dfaState?.progress || 0) * 100}%` }}
+                       className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full shadow-[0_0_10px_#00F5FF]"
+                    />
+                </div>
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-white/20 italic">
+                    <span>Initial State</span>
+                    <span>Accept Terminal</span>
                 </div>
             </div>
         </div>
-    );
+      </div>
+
+      {/* Info Panel Toggle */}
+      <section className="py-12 px-12 glass-morphism rounded-[3rem] border-2 border-cyan-400/5 bg-gradient-to-br from-cyan-400/[0.02] to-transparent">
+          <div className="flex flex-col md:flex-row gap-12 items-center">
+               <div className="p-10 bg-cyan-400/10 rounded-[3rem] border border-cyan-400/20 group hover:scale-110 transition-all duration-500">
+                   <Info className="w-16 h-16 text-cyan-400 group-hover:rotate-12 transition-transform" />
+               </div>
+               <div className="flex-1 space-y-6">
+                   <h2 className="text-3xl font-black italic uppercase tracking-tighter">Why Deterministic Finite Automata?</h2>
+                   <p className="text-white/40 leading-relaxed font-medium">
+                      Standard gesture detection is prone to false triggers. GestureIQ uses <span className="text-white">DFA validation</span> to ensure that only specific, intentional <span className="text-white">sequences</span> of gestures result in system actions. This provides a robust, reliable, and secure human-machine interface for critical applications.
+                   </p>
+                   <div className="flex gap-6">
+                       <div className="flex items-center gap-3 px-6 py-2 bg-white/5 border border-white/5 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
+                           <Database className="w-3 h-3 text-cyan-400" /> Zero False Positive
+                       </div>
+                       <div className="flex items-center gap-3 px-6 py-2 bg-white/5 border border-white/5 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
+                           <Shield className="w-3 h-3 text-neon-green" /> Sequence Encrypted
+                       </div>
+                   </div>
+               </div>
+          </div>
+      </section>
+
+      {/* Nav Sidebar Mockup */}
+      <div className="fixed left-8 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-[100] hidden xl:flex">
+          {[
+            { to: '/', icon: LayoutPanelTop, label: 'Home' },
+            { to: '/dashboard', icon: Database, label: 'Dash' },
+            { to: '/analytics', icon: BarChart3, label: 'Stats' },
+            { to: '/admin', icon: Settings, label: 'Admin' }
+          ].map((item, i) => (
+            <Link key={i} to={item.to} className="group relative flex items-center justify-center">
+                <div className="w-16 h-16 glass-morphism rounded-2xl flex items-center justify-center border border-white/5 hover:border-cyan-400/40 hover:scale-110 transition-all duration-500 hover:bg-cyan-400 group-hover:text-navy-deep group-hover:shadow-[0_0_20px_#00F5FF]">
+                    <item.icon className="w-6 h-6" />
+                </div>
+                <div className="absolute left-20 px-4 py-2 bg-navy-deep text-cyan-400 font-black uppercase tracking-widest text-[8px] rounded-lg opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all pointer-events-none mb-4 whitespace-nowrap">
+                    {item.label}
+                </div>
+            </Link>
+          ))}
+      </div>
+      <Walkthrough isOpen={showWalkthrough} onClose={() => setShowWalkthrough(false)} />
+    </div>
+  );
 };
 
 export default Dashboard;

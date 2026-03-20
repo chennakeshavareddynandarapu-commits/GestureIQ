@@ -25,6 +25,10 @@ const Report = () => {
         type: '',
         location: { lat: 18.5204, lng: 73.8567 },
         description: '',
+        lighting: 'well_lit',
+        crowd: 'moderate',
+        atmosphere: 'safe',
+        severity: 1,
         timestamp: new Date().toISOString()
     });
 
@@ -49,6 +53,9 @@ const Report = () => {
         { id: 'stalking', label: 'Stalking', icon: Shield, color: '#FF9F0A' },
         { id: 'unsafe_lighting', label: 'Unsafe Lighting', icon: MapPin, color: '#FFD60A' },
         { id: 'suspicious_activity', label: 'Suspicious Activity', icon: Check, color: '#32D74B' },
+        { id: 'loitering', label: 'Loitering', icon: Clock, color: '#64D2FF' },
+        { id: 'isolated_area', label: 'Isolated Area', icon: MapPin, color: '#BF5AF2' },
+        { id: 'poor_visibility', label: 'Poor Visibility', icon: AlertTriangle, color: '#FFD60A' },
         { id: 'other', label: 'Other Concern', icon: Clock, color: '#BF5AF2' }
     ];
 
@@ -59,7 +66,7 @@ const Report = () => {
                 <p className="text-white/40 font-medium">100% Anonymous. No IP logged. No PII stored. Just pure safety data.</p>
             </div>
 
-            <StepIndicator current={step} total={3} />
+            <StepIndicator current={step} total={4} />
 
             <div className="glass-morphism p-8 md:p-12 rounded-[3.5rem] border border-white/5 bg-navy-light/30 relative overflow-hidden">
                 <AnimatePresence mode="wait">
@@ -70,28 +77,27 @@ const Report = () => {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.4 }}
-                            className="min-h-[400px] flex flex-col justify-between"
+                            className="min-h-[420px] flex flex-col justify-between"
                         >
                             {step === 1 && (
                                 <div>
                                     <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
                                         <span className="p-2 bg-teal-accent/10 rounded-xl text-teal-accent text-sm">01</span> What did you observe?
                                     </h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {incidentTypes.map((type) => (
                                             <button
                                                 key={type.id}
                                                 onClick={() => { setFormData({ ...formData, type: type.id }); nextStep(); }}
-                                                className={`group flex items-center justify-between p-6 rounded-2xl border transition-all duration-300 ${formData.type === type.id
+                                                className={`group flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 ${formData.type === type.id
                                                         ? 'bg-teal-accent border-teal-accent text-navy-deep'
                                                         : 'bg-white/5 border-white/5 hover:border-teal-accent/30 text-white'
                                                     }`}
                                             >
-                                                <div className="flex items-center gap-4">
+                                                <div className="p-3 bg-white/5 rounded-xl mb-3">
                                                     <type.icon className={`w-6 h-6 ${formData.type === type.id ? 'text-navy-deep' : 'text-teal-accent'}`} />
-                                                    <span className="font-bold tracking-tight text-lg">{type.label}</span>
                                                 </div>
-                                                <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                <span className="font-bold tracking-tight text-xs text-center leading-tight uppercase">{type.label}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -101,7 +107,61 @@ const Report = () => {
                             {step === 2 && (
                                 <div>
                                     <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
-                                        <span className="p-2 bg-teal-accent/10 rounded-xl text-teal-accent text-sm">02</span> Specify Location & Details
+                                        <span className="p-2 bg-teal-accent/10 rounded-xl text-teal-accent text-sm">02</span> Environmental Conditions
+                                    </h2>
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-4">Lighting Quality</label>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    {['well_lit', 'dimly_lit', 'dark', 'no_lighting'].map((l) => (
+                                                        <button 
+                                                            key={l}
+                                                            onClick={() => setFormData({...formData, lighting: l})}
+                                                            className={`p-4 rounded-xl text-xs font-bold border transition-all ${formData.lighting === l ? 'bg-teal-accent text-navy-deep border-teal-accent' : 'bg-white/5 border-white/5 text-white/60 hover:border-white/20'}`}
+                                                        >
+                                                            {l.replace('_', ' ').toUpperCase()}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-4">Crowd Density</label>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    {['crowded', 'moderate', 'low', 'deserted'].map((c) => (
+                                                        <button 
+                                                            key={c}
+                                                            onClick={() => setFormData({...formData, crowd: c})}
+                                                            className={`p-4 rounded-xl text-xs font-bold border transition-all ${formData.crowd === c ? 'bg-teal-accent text-navy-deep border-teal-accent' : 'bg-white/5 border-white/5 text-white/60 hover:border-white/20'}`}
+                                                        >
+                                                            {c.toUpperCase()}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-4">Overall Atmosphere</label>
+                                            <div className="grid grid-cols-4 gap-3">
+                                                {['safe', 'tense', 'uncomfortable', 'dangerous'].map((a) => (
+                                                    <button 
+                                                        key={a}
+                                                        onClick={() => setFormData({...formData, atmosphere: a})}
+                                                        className={`p-4 rounded-xl text-xs font-bold border transition-all ${formData.atmosphere === a ? 'bg-teal-accent text-navy-deep border-teal-accent' : 'bg-white/5 border-white/5 text-white/60 hover:border-white/20'}`}
+                                                    >
+                                                        {a.toUpperCase()}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 3 && (
+                                <div>
+                                    <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
+                                        <span className="p-2 bg-teal-accent/10 rounded-xl text-teal-accent text-sm">03</span> Specify Location & Details
                                     </h2>
                                     <div className="space-y-6">
                                         <div>
@@ -131,14 +191,14 @@ const Report = () => {
                                 </div>
                             )}
 
-                            {step === 3 && (
+                            {step === 4 && (
                                 <div className="flex flex-col items-center justify-center text-center">
                                     <div className="w-24 h-24 bg-teal-accent/10 rounded-full flex items-center justify-center mb-8 relative">
                                         <div className="absolute inset-0 bg-teal-accent/20 rounded-full animate-ping"></div>
                                         <Shield className="w-12 h-12 text-teal-accent relative z-10" />
                                     </div>
                                     <h2 className="text-3xl font-black mb-4">Review & Submit</h2>
-                                    <p className="text-white/40 max-w-xs mb-12">
+                                    <p className="text-white/40 max-w-xs mb-12 font-medium">
                                         Review your report. Once submitted, it will be immediately processed by our AI layer to update the heatmap.
                                     </p>
 
@@ -163,11 +223,11 @@ const Report = () => {
                                     </button>
                                 ) : <div />}
 
-                                {step < 3 ? (
+                                {step < 4 ? (
                                     <button
                                         onClick={nextStep}
                                         disabled={!formData.type && step === 1}
-                                        className={`px-8 py-4 ${!formData.type && step === 1 ? 'bg-white/5 text-white/20' : 'bg-teal-accent text-navy-deep hover:scale-105'} rounded-2xl font-black flex items-center gap-2 transition-all`}
+                                        className={`px-10 py-5 ${!formData.type && step === 1 ? 'bg-white/5 text-white/20' : 'bg-teal-accent text-navy-deep hover:scale-105'} rounded-2xl font-black flex items-center gap-3 transition-all`}
                                     >
                                         Next Step <ArrowRight className="w-5 h-5" />
                                     </button>

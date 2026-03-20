@@ -1,0 +1,27 @@
+{
+  "name": "medical",
+  "states": ["IDLE", "POINTING", "CONFIRMING", "ACCEPT", "REJECT"],
+  "transitions": {
+    "IDLE": {
+      "pointing": "POINTING",
+      "fist": "REJECT"
+    },
+    "POINTING": {
+      "okSign": "ACCEPT",
+      "pointing": "POINTING",
+      "fist": "REJECT"
+    },
+    "POINTING_HOLD": {
+       "okSign": "ACCEPT",
+       "wave": "IDLE"
+    }
+  },
+  "startState": "IDLE",
+  "acceptStates": ["ACCEPT"],
+  "rejectStates": ["REJECT"],
+  "labels": {
+    "ACCEPT": "Organ Confirmed!",
+    "IDLE": "Waiting for gesture...",
+    "POINTING": "Point to confirm"
+  }
+}

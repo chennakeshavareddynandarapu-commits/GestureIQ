@@ -1,0 +1,25 @@
+{
+  "name": "professional",
+  "states": ["READY", "PENDING", "ACCEPT", "REJECT"],
+  "transitions": {
+    "READY": {
+      "openPalm": "ACCEPT",
+      "fist": "ACCEPT",
+      "peace": "ACCEPT",
+      "thumbsUp": "ACCEPT"
+    },
+    "ACCEPT": {
+      "openPalm": "READY",
+      "fist": "READY",
+      "peace": "READY",
+      "thumbsUp": "READY"
+    }
+  },
+  "startState": "READY",
+  "acceptStates": ["ACCEPT"],
+  "rejectStates": ["REJECT"],
+  "labels": {
+    "ACCEPT": "Command Executed",
+    "READY": "Listening for controls..."
+  }
+}

@@ -1,92 +1,131 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Landing from './pages/Landing';
-import Report from './pages/Report';
-import { Shield, Map, AlertTriangle, User, Home, AlertCircle } from 'lucide-react';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Shield, LayoutPanelTop, Brain, Microscope, Briefcase, BarChart3, Settings, Info, Menu, X, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Lazy load pages for performance
+const Landing = lazy(() => import('./pages/Landing'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const EducationModule = lazy(() => import('./pages/EducationModule'));
+const MedicalModule = lazy(() => import('./pages/MedicalModule'));
+const ProfessionalModule = lazy(() => import('./pages/ProfessionalModule'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const Admin = lazy(() => import('./pages/Admin'));
+
+const Navbar = () => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const location = useLocation();
+
+    const navLinks = [
+        { to: '/', label: 'Home', icon: LayoutPanelTop },
+        { to: '/dashboard', label: 'Dash', icon: Shield },
+        { to: '/education', label: 'Edu', icon: Brain },
+        { to: '/medical', label: 'Med', icon: Microscope },
+        { to: '/professional', label: 'Pro', icon: Briefcase },
+        { to: '/analytics', icon: BarChart3, label: 'Stats' },
+        { to: '/admin', icon: Settings, label: 'Admin' }
+    ];
+
+    return (
+        <nav className="fixed top-8 w-[calc(100%-4rem)] left-8 right-8 z-[1000] glass-morphism rounded-[2rem] border border-white/5 px-10 py-5 transition-all duration-500 backdrop-blur-3xl">
+            <div className="max-w-7xl mx-auto flex justify-between items-center">
+                <Link to="/" className="flex items-center gap-3 group">
+                    <div className="p-3 bg-cyan-400 rounded-2xl group-hover:scale-110 group-hover:-rotate-3 transition-all shadow-[0_0_20px_#00F5FF]">
+                        <Shield className="w-6 h-6 text-navy-deep" />
+                    </div>
+                    <span className="text-2xl font-black tracking-tighter text-white uppercase italic">
+                        Gesture<span className="text-gradient">IQ</span>
+                    </span>
+                </Link>
+
+                <div className="hidden lg:flex items-center gap-10">
+                    {navLinks.map((link) => (
+                        <Link 
+                            key={link.to} 
+                            to={link.to} 
+                            className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-cyan-400 ${location.pathname === link.to ? 'text-cyan-400 scale-105' : 'text-white/40'}`}
+                        >
+                            <link.icon className="w-4 h-4" /> {link.label}
+                        </Link>
+                    ))}
+                </div>
+
+                <div className="flex items-center gap-6">
+                    <Link to="/analytics" className="hidden md:flex items-center gap-3 px-6 py-2 bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 rounded-full text-[9px] font-black uppercase tracking-[0.3em] hover:bg-cyan-400 hover:text-navy-deep transition-all">
+                        <Zap className="w-3 h-3" /> Live Protocol
+                    </Link>
+                    <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-white">
+                        {isOpen ? <X /> : <Menu />}
+                    </button>
+                </div>
+            </div>
+
+            {/* Mobile Menu */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="lg:hidden overflow-hidden bg-navy-light/90 mt-6 rounded-2xl border-t border-white/5 py-8"
+                    >
+                        <div className="flex flex-col gap-6 px-4">
+                            {navLinks.map((link) => (
+                                <Link 
+                                    key={link.to} 
+                                    to={link.to} 
+                                    onClick={() => setIsOpen(false)}
+                                    className="flex items-center gap-4 text-sm font-black uppercase tracking-widest text-white/50 hover:text-cyan-400"
+                                >
+                                    <link.icon className="w-5 h-5" /> {link.label}
+                                </Link>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </nav>
+    );
+};
+
+const LoadingFallback = () => (
+    <div className="min-h-screen bg-navy-deep flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+            <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin shadow-[0_0_20px_#00F5FF]"></div>
+            <div className="font-black text-cyan-400 tracking-[0.4em] uppercase text-[10px] animate-pulse">Synchronising Brain Engine</div>
+        </div>
+    </div>
+);
 
 function App() {
     return (
         <Router>
-            <div className="min-h-screen bg-navy-deep text-white font-sans overflow-x-hidden selection:bg-teal-accent selection:text-navy-deep">
-                {/* Navigation */}
-                <nav className="fixed top-0 w-full z-50 glass-morphism py-4 px-6 border-b border-white/5">
-                    <div className="max-w-7xl mx-auto flex justify-between items-center">
-                        <Link to="/" className="flex items-center gap-2 group">
-                            <div className="p-2 bg-gradient-to-br from-teal-accent to-blue-500 rounded-lg group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(0,255,209,0.4)]">
-                                <Shield className="w-6 h-6 text-navy-deep" />
-                            </div>
-                            <span className="text-2xl font-black tracking-tighter bg-clip-text text-white">
-                                A3J<span className="text-teal-accent">SECURE</span>
-                            </span>
-                        </Link>
+            <div className="min-h-screen bg-navy-deep text-white font-sans selection:bg-cyan-400 selection:text-navy-deep">
+                <Navbar />
 
-                        <div className="hidden md:flex items-center gap-8 font-medium text-white/70">
-                            <Link to="/" className="hover:text-teal-accent transition-colors flex items-center gap-2">
-                                <Home className="w-4 h-4" /> Home
-                            </Link>
-                            <Link to="/dashboard" className="hover:text-teal-accent transition-colors flex items-center gap-2">
-                                <Map className="w-4 h-4" /> Live Map
-                            </Link>
-                            <Link to="/report" className="px-5 py-2 bg-teal-accent/10 border border-teal-accent/30 text-teal-accent rounded-full hover:bg-teal-accent hover:text-navy-deep transition-all duration-300 font-bold flex items-center gap-2">
-                                <AlertTriangle className="w-4 h-4" /> Report Incident
-                            </Link>
-                        </div>
-
-                        <div className="md:hidden">
-                            <AlertTriangle className="w-6 h-6 text-teal-accent" />
-                        </div>
-                    </div>
-                </nav>
-
-                {/* Page Content */}
-                <main className="pt-24 pb-12">
-                    <Routes>
-                        <Route path="/" element={<Landing />} />
-                        <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/report" element={<Report />} />
-                    </Routes>
+                <main className="pt-8">
+                    <Suspense fallback={<LoadingFallback />}>
+                        <Routes>
+                            <Route path="/" element={<Landing />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/education" element={<EducationModule />} />
+                            <Route path="/medical" element={<MedicalModule />} />
+                            <Route path="/professional" element={<ProfessionalModule />} />
+                            <Route path="/analytics" element={<Analytics />} />
+                            <Route path="/admin" element={<Admin />} />
+                        </Routes>
+                    </Suspense>
                 </main>
 
-                {/* Footer */}
-                <footer className="border-t border-white/5 py-12 px-6 bg-navy-light/30">
-                    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-                        <div className="col-span-1 md:col-span-2">
-                            <div className="flex items-center gap-2 mb-6">
-                                <Shield className="w-6 h-6 text-teal-accent" />
-                                <span className="text-xl font-bold tracking-tight">A3Jsecure</span>
-                            </div>
-                            <p className="text-white/50 max-w-sm mb-6 leading-relaxed">
-                                Empowering public safety through predictive AI and real-time community reporting. Shifting from reactive to preventive protection.
-                            </p>
-                            <div className="flex gap-4">
-                                <div className="p-2 bg-white/5 rounded-full hover:bg-teal-accent/20 cursor-pointer">
-                                    <Shield className="w-5 h-5 text-white/50" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 className="text-white font-bold mb-4 uppercase text-sm tracking-wider">Product</h4>
-                            <ul className="space-y-3 text-white/50 text-sm">
-                                <li><Link to="/dashboard" className="hover:text-teal-accent transition-colors">Safety Map</Link></li>
-                                <li><Link to="/report" className="hover:text-teal-accent transition-colors">Risk Analysis</Link></li>
-                                <li><Link to="/report" className="hover:text-teal-accent transition-colors">Safe Routes</Link></li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h4 className="text-white font-bold mb-4 uppercase text-sm tracking-wider">Company</h4>
-                            <ul className="space-y-3 text-white/50 text-sm">
-                                <li><a href="#" className="hover:text-teal-accent transition-colors">Transparency</a></li>
-                                <li><a href="#" className="hover:text-teal-accent transition-colors">Privacy Policy</a></li>
-                                <li><a href="#" className="hover:text-teal-accent transition-colors">Contact Support</a></li>
-                            </ul>
-                        </div>
+                {/* Performance HUD (Global Layout Extra) */}
+                <div className="fixed bottom-8 right-8 z-[1000] hidden md:flex items-center gap-4 glass-morphism px-6 py-3 rounded-2xl border border-white/5">
+                    <div className="flex items-center gap-2">
+                         <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
+                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Engine Valid</span>
                     </div>
-                    <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 text-center text-white/30 text-xs uppercase tracking-widest font-bold">
-                        &copy; 2026 A3Jsecure Safety Intelligence — Built for Humanity
-                    </div>
-                </footer>
+                    <div className="w-[1px] h-4 bg-white/10"></div>
+                    <div className="text-[10px] font-black text-cyan-400 uppercase italic tracking-widest">Protocol Omega-9</div>
+                </div>
             </div>
         </Router>
     );

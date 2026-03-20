@@ -1,0 +1,37 @@
+{
+  "name": "education",
+  "states": ["S0", "S1", "S2", "S3", "ACCEPT", "REJECT"],
+  "transitions": {
+    "S0": {
+      "pointing": "S1",
+      "fist": "S2",
+      "thumbsUp": "S1",
+      "thumbsDown": "S1"
+    },
+    "S1": {
+      "thumbsUp": "ACCEPT",
+      "thumbsDown": "ACCEPT",
+      "wave": "S3",
+      "pointing": "S1"
+    },
+    "S2": {
+      "wave": "S3",
+      "fist": "REJECT"
+    },
+    "S3": {
+      "openPalm": "ACCEPT",
+      "fist": "REJECT"
+    }
+  },
+  "startState": "S0",
+  "acceptStates": ["ACCEPT"],
+  "rejectStates": ["REJECT"],
+  "labels": {
+    "S0": "Ready for answer",
+    "S1": "Answer registered",
+    "S2": "Confirm with wave",
+    "S3": "Skip question?",
+    "ACCEPT": "Answer confirmed",
+    "REJECT": "Invalid sequence"
+  }
+}
